@@ -1,0 +1,9 @@
+{% extends "layouts/main.njk" %}{% block title %}{{ board.name }} · OldBBS{% endblock %}
+{% block content %}<p class="breadcrumbs"><a href="/boards">论坛</a> / {{ board.name }}</p><h1>{{ board.name }}</h1><p>{{ board.description }}</p>
+{% if currentUser %}<p><a class="button" href="/threads/new?board={{ board.id }}">发新主题</a></p>{% else %}<p><a href="/login?next=/threads/new?board={{ board.id }}">登录后发主题</a></p>{% endif %}
+<h2>主题列表 <small>第 {{ page }} / {{ pages }} 页</small></h2>
+<table class="thread-table"><thead><tr><th>状态</th><th>标题</th><th>作者</th><th>回复</th><th>浏览</th><th>最后回复</th></tr></thead><tbody>
+{% for thread in threads %}<tr><td>{% if thread.isPinned %}置顶{% elif thread.isFeatured %}精华{% elif thread.isLocked %}锁定{% else %}主题{% endif %}</td><td><a href="/threads/{{ thread.id }}/{{ thread.slug }}">{{ thread.title }}</a></td><td><a href="/users/{{ thread.author.username }}">{{ thread.author.nickname }}</a></td><td>{{ thread.replyCount }}</td><td>{{ thread.viewCount }}</td><td>{{ thread.lastPostAt.toISOString().slice(0, 10) if thread.lastPostAt else "—" }}</td></tr>{% else %}<tr><td colspan="6">这里还没有主题。</td></tr>{% endfor %}
+</tbody></table>
+<nav class="pagination" aria-label="分页">{% if page > 1 %}<a href="?page={{ page - 1 }}">上一页</a>{% endif %} 第 {{ page }} / {{ pages }} 页 {% if page < pages %}<a href="?page={{ page + 1 }}">下一页</a>{% endif %}</nav>
+{% endblock %}

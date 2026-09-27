@@ -1,0 +1,5 @@
+{% extends "layouts/main.njk" %}{% block title %}软件资料库 · OldBBS{% endblock %}
+{% block content %}<h1>软件资料库</h1>{% if currentUser %}<p><a class="button" href="/software/new">提交软件资料</a></p>{% endif %}
+<form method="get" action="/software" class="search-form"><label>搜索软件<input name="q" value="{{ query }}" maxlength="80"></label><button type="submit">搜索</button></form>
+<table class="data-table"><thead><tr><th>名称</th><th>平台</th><th>版本</th><th>最低系统</th></tr></thead><tbody>{% for item in data %}<tr><td><a href="/software/{{ item.slug }}">{{ item.name }}</a></td><td>{{ item.platform }}</td><td>{{ item.version }}</td><td>{{ item.minimumOs or "—" }}</td></tr>{% else %}<tr><td colspan="4">软件资料库还没有公开条目。</td></tr>{% endfor %}</tbody></table>
+<nav class="pagination" aria-label="分页">{% if meta.page > 1 %}<a href="?page={{ meta.page - 1 }}&amp;q={{ queryParam }}">上一页</a>{% endif %} 第 {{ meta.page }} 页{% if meta.page * meta.page_size < meta.total %}<a href="?page={{ meta.page + 1 }}&amp;q={{ queryParam }}">下一页</a>{% endif %}</nav>{% endblock %}

@@ -1,0 +1,1 @@
+{% extends "layouts/main.njk" %}{% block title %}主题标签 · OldBBS{% endblock %}{% block content %}<h1>主题标签</h1><ul class="directory-list">{% for tag in tags %}<li><a href="/tags/{{ tag.slug }}">{{ tag.name }}</a> · {{ tag.threadCount }} 个主题</li>{% else %}<li>目前还没有标签。</li>{% endfor %}</ul>{% endblock %}

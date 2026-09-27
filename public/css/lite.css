@@ -1,0 +1,6 @@
+/* Optional low-bandwidth overrides. This remains a small CSS2-compatible file. */
+body.lite, body.lite .site-shell, body.lite .site-header, body.lite .notice-block, body.lite .stats-block { background: #fff; }
+body.lite .site-shell { margin-top: 0; border-color: #777; }
+body.lite .post, body.lite .form-panel, body.lite .message-list li { background: #fff; }
+body.lite .markdown-body img, body.lite .post-user img { display: none; }
+body.lite * { box-shadow: none !important; text-shadow: none !important; }

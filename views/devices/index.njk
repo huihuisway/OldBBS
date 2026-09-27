@@ -1,0 +1,5 @@
+{% extends "layouts/main.njk" %}{% block title %}设备资料库 · OldBBS{% endblock %}
+{% block content %}<h1>设备资料库</h1>{% if currentUser %}<p><a class="button" href="/devices/new">添加设备资料</a></p>{% endif %}
+<form method="get" action="/devices" class="search-form"><label>搜索设备<input name="q" value="{{ query }}" maxlength="80"></label><button type="submit">搜索</button></form>
+<table class="data-table"><thead><tr><th>设备</th><th>品牌 / 型号</th><th>平台</th><th>发布年份</th></tr></thead><tbody>{% for device in data %}<tr><td><a href="/devices/{{ device.slug }}">{{ device.name }}</a></td><td>{{ device.brand }} / {{ device.model }}</td><td>{{ device.platform }}</td><td>{{ device.releaseYear or "—" }}</td></tr>{% else %}<tr><td colspan="4">设备资料库还没有记录。</td></tr>{% endfor %}</tbody></table>
+<nav class="pagination" aria-label="分页">{% if meta.page > 1 %}<a href="?page={{ meta.page - 1 }}&amp;q={{ queryParam }}">上一页</a>{% endif %} 第 {{ meta.page }} 页{% if meta.page * meta.page_size < meta.total %}<a href="?page={{ meta.page + 1 }}&amp;q={{ queryParam }}">下一页</a>{% endif %}</nav>{% endblock %}

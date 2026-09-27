@@ -1,0 +1,19 @@
+{% extends "layouts/main.njk" %}
+{% block title %}{{ user.nickname }} · OldBBS{% endblock %}
+{% block content %}
+<h1>{{ user.nickname }}</h1><p>@{{ user.username }} · UID {{ user.id }} · {{ user.role }}</p>
+<p>{{ user.signature or "这个用户还没有填写签名。" }}</p>
+<p>加入时间：{{ user.createdAt.toISOString().slice(0, 10) }} · 帖子数：{{ user.postCount }}{% if user.lastOnlineAt %} · 最近在线：{{ user.lastOnlineAt.toISOString().slice(0, 10) }}{% endif %}</p>
+<p>关注 {{ followingCount }} 人 · 粉丝 {{ followerCount }} 人</p>
+<p>关注的人：{% for person in following %}<a href="/users/{{ person.username }}">{{ person.nickname }}</a>{% if not loop.last %}、{% endif %}{% else %}暂无{% endfor %}</p>
+<p>关注者：{% for person in followers %}<a href="/users/{{ person.username }}">{{ person.nickname }}</a>{% if not loop.last %}、{% endif %}{% else %}暂无{% endfor %}</p>
+{% if currentUser and currentUser.id != user.id %}
+<form method="post" action="/users/{{ user.id }}/follow" class="inline-form"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button type="submit">关注 / 取消关注</button></form>
+<h2>发送私信</h2>
+<form method="post" action="/messages" class="form-panel"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="to" value="{{ user.username }}"><label>内容<textarea name="body" rows="5" required maxlength="10000"></textarea></label><button type="submit">发送</button></form>
+{% endif %}
+<h2>最近主题</h2>
+<ul class="thread-list">{% for thread in threads %}<li><a href="/threads/{{ thread.id }}/{{ thread.slug }}">{{ thread.title }}</a> · {{ thread.createdAt.toISOString().slice(0, 10) }}</li>{% else %}<li>还没有发表主题。</li>{% endfor %}</ul>
+<h2>最近帖子</h2>
+<ul>{% for post in posts %}<li><a href="/threads/{{ post.threadId }}/thread#post-{{ post.id }}">#{{ post.floor }}</a> · {{ post.createdAt.toISOString().slice(0, 10) }}<p>{{ post.content.slice(0, 160) }}</p></li>{% else %}<li>还没有发帖。</li>{% endfor %}</ul>
+{% endblock %}

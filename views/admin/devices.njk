@@ -1,0 +1,42 @@
+{% extends "layouts/main.njk" %}
+{% block title %}设备管理 · OldBBS{% endblock %}
+{% block content %}
+<h1>设备管理</h1>
+<table>
+  <thead><tr><th>设备</th><th>品牌 / 型号</th><th>平台</th><th>年份</th><th>状态</th><th>操作</th></tr></thead>
+  <tbody>
+  {% for device in devices %}
+    <tr id="device-{{ device.id }}">
+      <td>{% if device.status == "active" %}<a href="/devices/{{ device.slug }}">{{ device.name }}</a>{% else %}{{ device.name }}{% endif %}</td>
+      <td>{{ device.brand }} / {{ device.model }}</td><td>{{ device.platform }}</td><td>{{ device.releaseYear or "—" }}</td>
+      <td>{{ device.reviewStatus }} · {{ "正常" if device.status == "active" else "已删除" }}</td>
+      <td>
+          <form method="post" action="/admin/devices/{{ device.id }}" class="form-panel">
+            <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+            <label>名称<input name="name" value="{{ device.name }}" required maxlength="180"></label>
+            <label>品牌<input name="brand" value="{{ device.brand }}" required maxlength="100"></label>
+            <label>型号<input name="model" value="{{ device.model }}" required maxlength="120"></label>
+            <label>平台<input name="platform" value="{{ device.platform }}" required maxlength="80"></label>
+            <label>发布年份<input name="releaseYear" value="{{ device.releaseYear or '' }}" inputmode="numeric"></label>
+            <label>系统版本<input name="osVersions" value="{{ device.osVersions or '' }}"></label>
+            <label>处理器<input name="cpu" value="{{ device.cpu or '' }}"></label>
+            <label>内存<input name="ram" value="{{ device.ram or '' }}"></label>
+            <label>存储<input name="storage" value="{{ device.storage or '' }}"></label>
+            <label>屏幕<input name="screen" value="{{ device.screen or '' }}"></label>
+            <label>封面图片 URL<input name="cover" value="{{ device.cover or '' }}" maxlength="500"></label>
+            <label>介绍<textarea name="description" rows="6">{{ device.description }}</textarea></label>
+            <button type="submit">保存设备资料</button>
+          </form>
+        {% if device.reviewStatus != "published" %}<form method="post" action="/admin/moderate/device/{{ device.id }}/publish"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button>通过并发布</button></form>{% endif %}
+        {% if device.reviewStatus != "rejected" %}<form method="post" action="/admin/moderate/device/{{ device.id }}/reject"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button>拒绝投稿</button></form>{% endif %}
+        {% if device.status == "active" %}
+        <form method="post" action="/admin/moderate/device/{{ device.id }}/delete"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button>删除</button></form>
+        {% else %}
+        <form method="post" action="/admin/moderate/device/{{ device.id }}/restore"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button>恢复</button></form>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}<tr><td colspan="6">暂无设备。</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

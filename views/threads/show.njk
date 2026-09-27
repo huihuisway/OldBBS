@@ -1,0 +1,52 @@
+{% extends "layouts/main.njk" %}
+{% block title %}{{ thread.title }} · OldBBS{% endblock %}
+{% block content %}
+<p class="breadcrumbs"><a href="/boards">论坛</a> / <a href="/boards/{{ board.slug }}">{{ board.name }}</a></p>
+<h1>{{ thread.title }}</h1>
+<p class="topic-meta">{{ thread.replyCount }} 回复　{{ thread.viewCount }} 浏览{% if thread.isPinned %}　置顶{% endif %}{% if thread.isFeatured %}　精华{% endif %}{% if thread.isLocked %}　已锁定{% endif %}</p>
+{% if tags and tags.length %}<p class="topic-tags">标签：{% for tag in tags %}<a href="/tags/{{ tag.slug }}">{{ tag.name }}</a> {% endfor %}</p>{% endif %}
+
+{% for post in posts %}
+<article class="post" id="post-{{ post.id }}">
+  {% if post.author %}<header class="post-user"><strong><a href="/users/{{ post.author.username }}">{{ post.author.nickname }}</a></strong><br><span>UID {{ post.author.id }}</span><br><span>等级：{{ post.author.role }}</span><br><span>注册于 {{ post.author.createdAt.toISOString().slice(0, 10) }}</span><br><span>帖子 {{ post.author.postCount }}</span></header>{% endif %}
+  <div class="post-content">
+    <p class="post-meta">#{{ post.floor }}　{{ post.createdAt.toISOString().replace('T', ' ').slice(0, 16) }}</p>
+    {% if post.content == null %}<p class="muted">此帖已{{ '删除' if post.status == 'deleted' else '隐藏' }}（楼层号保留）。</p>
+    {% else %}{% if post.replyToPostId %}<p class="quote-label">回复了另一楼</p>{% endif %}<div class="markdown-body">{{ post.renderedHtml | safe }}</div>{% endif %}
+    <div class="post-actions">
+      <a href="?page={{ page }}&amp;quote={{ post.id }}#reply">引用 #{{ post.floor }}</a>
+      {% if post.status == 'visible' and currentUser and (currentUser.id == post.authorId or currentUser.role == 'moderator' or currentUser.role == 'admin') %}<a href="#edit-{{ post.id }}">编辑</a>{% endif %}
+    </div>
+    {% if post.status == 'visible' and currentUser and (currentUser.id == post.authorId or currentUser.role == 'moderator' or currentUser.role == 'admin') %}
+    <form id="edit-{{ post.id }}" method="post" action="/posts/{{ post.id }}/edit" class="form-panel"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><label>编辑帖子<textarea name="content" rows="8" required maxlength="100000">{{ post.content }}</textarea></label><button type="submit">保存</button></form>
+    {% endif %}
+    {% if canModerate %}<form method="post" action="/admin/moderate/post/{{ post.id }}/{{ 'delete' if post.status == 'visible' else 'restore' }}" class="inline-form"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button type="submit">{{ '删除帖子' if post.status == 'visible' else '恢复帖子' }}</button></form>{% endif %}
+    {% if currentUser and post.status == 'visible' %}<form method="post" action="/reports" class="form-panel"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="targetType" value="post"><input type="hidden" name="targetId" value="{{ post.id }}"><label>举报此帖<textarea name="reason" required maxlength="2000"></textarea></label><button type="submit">提交举报</button></form>{% endif %}
+  </div>
+</article>
+{% endfor %}
+
+<nav class="pagination" aria-label="分页">{% if page > 1 %}<a href="?page={{ page - 1 }}">上一页</a>{% endif %} 第 {{ page }} / {{ pages }} 页{% if page < pages %} <a href="?page={{ page + 1 }}">下一页</a>{% endif %}</nav>
+{% if currentUser %}<form method="post" action="/threads/{{ thread.id }}/bookmark" class="inline-form"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button type="submit">收藏 / 取消收藏</button></form>{% endif %}
+<h2 id="reply">回复主题</h2>
+{% if currentUser %}
+  {% if thread.isLocked and currentUser.role == 'user' %}<p>主题已锁定，暂时不能回复。</p>
+  {% else %}
+    {% if quote %}<p>引用 #{{ quote.floor }}：{{ quote.content.slice(0, 180) }}</p>{% endif %}
+    <form method="post" action="/threads/{{ thread.id }}/replies" class="form-panel">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      {% if quote %}<input type="hidden" name="replyToPostId" value="{{ quote.postId }}">{% endif %}
+      <label for="replyContent">正文</label>
+      <textarea id="replyContent" name="content" rows="8" required maxlength="100000">{% if quote %}&gt; 引用 #{{ quote.floor }}&#10;{% for line in quote.content.split('\n') %}&gt; {{ line }}&#10;{% endfor %}&#10;{% endif %}</textarea>
+      <button type="submit">提交回复</button>
+    </form>
+  {% endif %}
+{% else %}<p><a href="/login?next=/threads/{{ thread.id }}">登录后回复</a></p>{% endif %}
+
+{% if canModerate %}
+<section class="moderation-tools"><h2>版务操作</h2>
+{% for action in ['lock','unlock','pin','unpin','feature','unfeature','delete','restore'] %}<form method="post" action="/admin/moderate/thread/{{ thread.id }}/{{ action }}" class="inline-form"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button type="submit">{{ action }}</button></form>{% endfor %}
+<form method="post" action="/admin/moderate/thread/{{ thread.id }}/move" class="form-panel"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><label>目标版块<select name="boardId">{% for item in boards if not item.isHidden %}<option value="{{ item.id }}">{{ item.name }}</option>{% endfor %}</select></label><button type="submit">移动</button></form>
+</section>
+{% endif %}
+{% endblock %}

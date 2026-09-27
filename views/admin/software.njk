@@ -1,0 +1,34 @@
+{% extends "layouts/main.njk" %}
+{% block title %}软件审核 · OldBBS{% endblock %}
+{% block content %}
+<h1>软件审核与管理</h1>
+<table>
+  <thead><tr><th>状态</th><th>名称</th><th>平台</th><th>版本</th><th>SHA-256</th><th>操作</th></tr></thead>
+  <tbody>
+  {% for item in software %}
+    <tr id="software-{{ item.id }}">
+      <td>{{ item.status }}</td><td>{% if item.status == 'published' %}<a href="/software/{{ item.slug }}">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</td><td>{{ item.platform }}</td><td>{{ item.version }}</td><td>{{ item.sha256 or "—" }}</td>
+      <td>
+          <form method="post" action="/admin/software/{{ item.id }}" class="form-panel">
+            <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+            <label>名称<input name="name" value="{{ item.name }}" required maxlength="180"></label>
+            <label>平台<input name="platform" value="{{ item.platform }}" required maxlength="80"></label>
+            <label>版本<input name="version" value="{{ item.version }}" required maxlength="80"></label>
+            <label>开发者<input name="developer" value="{{ item.developer or '' }}" maxlength="180"></label>
+            <label>最低系统<input name="minimumOs" value="{{ item.minimumOs or '' }}" maxlength="100"></label>
+            <label>架构<input name="architectures" value="{{ item.architectures or '' }}"></label>
+            <label>下载地址<input name="downloadUrl" value="{{ item.downloadUrl or '' }}" maxlength="1000"></label>
+            <label>文件名<input name="fileName" value="{{ item.fileName or '' }}" maxlength="255"></label>
+            <label>文件大小（字节）<input name="fileSize" value="{{ item.fileSize or '' }}" inputmode="numeric"></label>
+            <label>SHA-256<input name="sha256" value="{{ item.sha256 or '' }}" maxlength="64"></label>
+            <label>介绍<textarea name="description" rows="6">{{ item.description }}</textarea></label>
+            <button type="submit">保存软件资料</button>
+          </form>
+        {% if item.status != 'published' %}<form method="post" action="/admin/moderate/software/{{ item.id }}/publish" class="inline-form"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button>发布</button></form>{% endif %}
+        <form method="post" action="/admin/moderate/software/{{ item.id }}/reject" class="inline-form"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button>拒绝</button></form>
+      </td>
+    </tr>
+  {% else %}<tr><td colspan="6">暂无软件资料。</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

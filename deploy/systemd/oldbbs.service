@@ -1,0 +1,35 @@
+[Unit]
+Description=OldBBS community application
+After=network-online.target redis-server.service mysql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=oldbbs
+Group=oldbbs
+WorkingDirectory=/opt/oldbbs/current
+Environment=NODE_ENV=production
+Environment=APP_HOST=127.0.0.1
+Environment=APP_PORT=3000
+Environment=UPLOAD_DIR=/var/lib/oldbbs/uploads
+Environment=SSH_HOST_KEY_PATH=/var/lib/oldbbs/ssh_host_ed25519
+EnvironmentFile=-/etc/oldbbs/oldbbs.env
+StateDirectory=oldbbs
+StateDirectoryMode=0700
+ExecStart=/usr/bin/node /opt/oldbbs/current/dist/src/main.js
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/oldbbs
+
+[Install]
+WantedBy=multi-user.target

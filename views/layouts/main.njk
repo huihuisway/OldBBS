@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}OldBBS.CN · 旧设备与旧软件社区{% endblock %}</title>
+  <meta name="description" content="面向旧设备、旧操作系统、旧软件与旧互联网文化爱好者的中文社区。">
+  <link rel="stylesheet" href="/css/oldbbs.css">
+  {% if lite %}<link rel="stylesheet" href="/css/lite.css">{% endif %}
+</head>
+<body class="theme-{{ currentUser.theme if currentUser else 'classic' }}{% if lite %} lite{% endif %}">
+<div class="site-shell">
+  <header class="site-header">
+    <p class="masthead"><a href="/">OldBBS.CN</a></p>
+    <p class="tagline">旧设备 · 旧软件 · 旧互联网</p>
+    <nav class="main-nav" aria-label="主导航">
+      <a href="/">首页</a><a href="/boards">论坛</a><a href="/devices">设备</a><a href="/software">软件</a><a href="/tags">标签</a><a href="/latest">最新</a><a href="/search">搜索</a>
+      {% if currentUser %}<a href="/notifications">通知</a><a href="/messages">私信</a><a href="/users/{{ currentUser.username }}">{{ currentUser.nickname }}</a><form class="inline-form" method="post" action="/logout"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button type="submit">退出</button></form>
+      {% else %}<a href="/login">登录</a><a href="/register">注册</a>{% endif %}
+    </nav>
+    <p class="environment-note">本站最佳浏览环境：任何能显示 HTML 的设备。{% if currentUser %} <a href="/settings">显示设置</a>{% endif %}</p>
+  </header>
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <p><a href="/">OldBBS.CN</a> · <a href="/boards">版面目录</a> · <a href="/search">搜索</a>{% if currentUser and currentUser.role == "admin" %} · <a href="/admin">管理入口</a>{% endif %}</p>
+    <p>Modern core. Old-school interfaces.</p>
+  </footer>
+</div>
+</body>
+</html>

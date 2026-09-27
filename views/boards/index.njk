@@ -1,0 +1,15 @@
+{% extends "layouts/main.njk" %}{% block title %}版面目录 · OldBBS{% endblock %}
+{% block content %}
+<h1>版面目录</h1>
+<ul class="directory-list">
+  {% for board in boards %}
+    {% if not board.parentId %}
+    <li>
+      <h2><a href="/boards/{{ board.slug }}">{{ board.name }}</a></h2>
+      <p>{{ board.description or "讨论、交流与资料分享" }}</p>
+      <ul>{% for child in boards %}{% if child.parentId == board.id %}<li><a href="/boards/{{ child.slug }}">{{ child.name }}</a></li>{% endif %}{% endfor %}</ul>
+    </li>
+    {% endif %}
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "layouts/main.njk" %}{% block title %}发表主题 · OldBBS{% endblock %}
+{% block content %}<p><a href="/boards">论坛</a></p><h1>发表新主题</h1><form method="post" action="/threads" class="form-panel"><input type="hidden" name="_csrf" value="{{ csrfToken }}">
+<label for="boardId">版块</label><select id="boardId" name="boardId" required>{% for board in boards if not board.isHidden %}<option value="{{ board.id }}" {% if selectedBoard == board.id %}selected{% endif %}>{{ board.name }}</option>{% endfor %}</select>
+<label for="title">标题</label><input id="title" name="title" maxlength="180" required>
+<label for="deviceId">关联设备（可选）</label><select id="deviceId" name="deviceId"><option value="">不关联</option>{% for device in devices %}<option value="{{ device.id }}">{{ device.name }}</option>{% endfor %}</select>
+<label for="softwareId">关联软件（可选）</label><select id="softwareId" name="softwareId"><option value="">不关联</option>{% for item in software %}<option value="{{ item.id }}">{{ item.name }} {{ item.version }}</option>{% endfor %}</select>
+<label for="tags">标签（逗号分隔，最多 8 个）</label><input id="tags" name="tags" maxlength="300">
+<label for="content">正文（支持 Markdown，不支持任意 HTML）</label><textarea id="content" name="content" rows="14" maxlength="100000" required></textarea>
+<p><button type="submit">发表主题</button></p></form>{% endblock %}

@@ -1,0 +1,1 @@
+{% extends "layouts/main.njk" %}{% block title %}投稿已提交 · OldBBS{% endblock %}{% block content %}<h1>投稿已提交</h1><p>{{ "设备" if kind == "device" else "软件" }}资料已进入审核队列。审核通过后会出现在公开目录。</p><p><a href="/{{ "devices" if kind == "device" else "software" }}">返回目录</a></p>{% endblock %}

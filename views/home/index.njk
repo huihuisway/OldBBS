@@ -1,0 +1,31 @@
+{% extends "layouts/main.njk" %}
+{% block title %}OldBBS.CN · 旧设备与旧软件社区{% endblock %}
+{% block content %}
+<section class="notice-block">
+  <h1>公告</h1>
+  <p>{{ announcement or "欢迎来到 OldBBS。这里留给老设备、旧系统、经典软件和那些仍愿意动手折腾的人。" }}</p>
+  <p>发帖使用纯文本与 Markdown；分享软件时请说明来源、版本和校验值。</p>
+</section>
+<section>
+  <h2>版面目录</h2>
+  <table class="board-table"><thead><tr><th>版面</th><th>简介</th><th>进入</th></tr></thead><tbody>
+  {% for board in boards %}
+    {% if not board.parentId %}
+    <tr><td><strong><a href="/boards/{{ board.slug }}">{{ board.name }}</a></strong>
+      {% for child in boards %}{% if child.parentId == board.id %}<span class="sub-board"><a href="/boards/{{ child.slug }}">{{ child.name }}</a></span>{% endif %}{% endfor %}
+    </td><td>{{ board.description or "讨论、交流与资料分享" }}</td><td><a href="/boards/{{ board.slug }}">查看</a></td></tr>
+    {% endif %}
+  {% endfor %}
+  </tbody></table>
+</section>
+<section>
+  <h2>近期热帖</h2>
+  {% if threads.length %}<ul class="thread-list">
+  {% for thread in threads %}<li><span class="thread-flags">{% if thread.isPinned %}[置顶] {% endif %}{% if thread.isFeatured %}[精华] {% endif %}</span><a href="/threads/{{ thread.id }}/{{ thread.slug }}">{{ thread.title }}</a> <span class="muted">{{ thread.author.nickname if thread.author else "未知用户" }} · {{ thread.replyCount }} 回复 · {{ thread.board.name if thread.board else "版面" }}</span></li>{% endfor %}
+  </ul>{% else %}<p>社区刚刚开站，来发布第一篇主题吧。</p>{% endif %}
+</section>
+<section class="stats-block"><h2>站点信息</h2>
+  <p>今日帖子：{{ totals.today }}　主题数量：{{ totals.threads }}　会员数量：{{ totals.users }}　近期在线：{{ totals.online }}</p>
+  <p class="muted">本站访客统计仅使用真实请求计数，不展示虚构的访问排名。</p>
+</section>
+{% endblock %}

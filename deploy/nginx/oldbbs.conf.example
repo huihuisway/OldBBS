@@ -1,0 +1,29 @@
+# Place this file in Nginx's http-context include directory.
+# When deployed behind Aliyun ESA, add its current official edge ranges here before
+# enabling real_ip_header. Restrict origin traffic to those ranges at the firewall.
+# set_real_ip_from <ESA_EDGE_CIDR>;
+# real_ip_header X-Forwarded-For;
+# real_ip_recursive on;
+
+limit_req_zone $binary_remote_addr zone=oldbbs_web:10m rate=10r/s;
+
+server {
+    listen 80;
+    server_name oldbbs.cn www.oldbbs.cn;
+    client_max_body_size 9m;
+
+    location / {
+        limit_req zone=oldbbs_web burst=30 nodelay;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        # ESA must replace this header with the public request scheme.
+        # If Nginx terminates HTTPS directly, use: proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 60s;
+        proxy_send_timeout 60s;
+    }
+}

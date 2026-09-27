@@ -1,0 +1,12 @@
+node_modules/
+dist/
+data/
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+coverage/
+*.log
